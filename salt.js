@@ -11,7 +11,7 @@ function signup(email, password) {
         
         let user = {
             email,
-            password: key,
+            password: `${salt}:${key}`,
         };
 
         users.push(user);
@@ -22,6 +22,21 @@ function signup(email, password) {
     return null;
 }
 
+function login(email, password) {
+    const user = users.find(elem => elem.email === email);
+
+    if (user) {
+        const [salt, key] = user.password.split(':');
+        const hashedPassword = scryptSync(password, salt, 64).toString('hex');
+
+        if (key === hashedPassword) {
+            return user;
+        }
+    }
+
+    return null;
+}
+
 module.exports = {
-    users, signup
+    users, signup, login
 };
